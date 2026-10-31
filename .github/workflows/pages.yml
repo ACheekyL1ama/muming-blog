@@ -1,0 +1,42 @@
+name: Publish blog to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v4
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Verify and extract website
+        run: |
+          sed -i 's/\r$//' SHA256SUMS
+          sha256sum -c SHA256SUMS
+          mkdir -p site
+          while read -r checksum archive; do unzip -q "$archive" -d site; done < SHA256SUMS
+          test -f site/index.html
+          touch site/.nojekyll
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v5
