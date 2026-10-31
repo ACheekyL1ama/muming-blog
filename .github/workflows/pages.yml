@@ -30,7 +30,7 @@ jobs:
           sed -i 's/\r$//' SHA256SUMS
           sha256sum -c SHA256SUMS
           mkdir -p site
-          while read -r checksum archive; do unzip -q "$archive" -d site; done < SHA256SUMS
+          while read -r checksum archive; do unzip -oq "$archive" -d site; done < SHA256SUMS
           test -f site/index.html
           touch site/.nojekyll
       - name: Upload website
