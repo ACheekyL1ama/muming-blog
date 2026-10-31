@@ -30,7 +30,10 @@ jobs:
           sed -i 's/\r$//' SHA256SUMS
           sha256sum -c SHA256SUMS
           mkdir -p site
-          while read -r checksum archive; do unzip -oq "$archive" -d site; done < SHA256SUMS
+          for archive in site-*.zip; do unzip -oq "$archive" -d site; done
+          find site -type f \( -name '*.html' -o -name '*.xml' -o -name '*.txt' -o -name '*.json' \) -delete
+          rm -rf site/pagefind site/images/albums
+          unzip -oq content.zip -d site
           test -f site/index.html
           touch site/.nojekyll
       - name: Upload website
